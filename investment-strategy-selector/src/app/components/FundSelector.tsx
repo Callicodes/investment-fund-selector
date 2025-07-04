@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Typography,
 } from "@mui/material";
+import FundDetails from "./FundDetails";
 
 interface FundSelectorProps {
   strategy: "Growth" | "Responsible";
@@ -69,11 +70,7 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
       {loading && <CircularProgress sx={{ mt: 2 }} />}
       {error && <Typography color="error">{error}</Typography>}
 
-      {fundData && (
-        <pre style={{ marginTop: "1rem", fontSize: "0.9rem" }}>
-          {JSON.stringify(fundData, null, 2)}
-        </pre>
-      )}
+      {fundData && <FundDetails data={fundData} />}
     </>
   );
 }
