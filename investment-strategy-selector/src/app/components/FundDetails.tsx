@@ -8,7 +8,7 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
-import StarIcon from "@mui/icons-material/Star";
+// import StarIcon from "@mui/icons-material/Star";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -38,14 +38,14 @@ export default function FundDetails({ data }: FundDetailsProps) {
   return (
     <Box mt={4}>
       <Typography variant="h6">Analyst Rating</Typography>
-      <Box display="flex" alignItems="center" mb={2}>
+      {/* <Box display="flex" alignItems="center" mb={2}>
         {Array.from({ length: 5 }).map((_, index) => (
           <StarIcon
             key={index}
             color={index < analystRating ? "primary" : "disabled"}
           />
         ))}
-      </Box>
+      </Box> */}
 
       <Typography variant="h6">SRRI (Risk Level)</Typography>
       <Slider
