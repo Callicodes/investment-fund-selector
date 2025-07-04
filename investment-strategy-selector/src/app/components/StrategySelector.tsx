@@ -1,6 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "../../store/store";
+import { setSelectedStrategyId, setSelectedFundId } from "../../store/slices/fundSlice";
 
 type Fund = {
   id: string;
@@ -31,26 +34,35 @@ const strategies: Strategy[] = [
 ];
 
 export default function StrategySelector() {
-  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
-  const [selectedFund, setSelectedFund] = useState<Fund | null>(null);
+  const dispatch = useDispatch();
+
+  // Selectors from Redux store
+  const selectedStrategyId = useSelector(
+    (state: RootState) => state.fund.selectedStrategyId
+  );
+  const selectedFundId = useSelector(
+    (state: RootState) => state.fund.selectedFundId
+  );
+
+  // Find selected strategy object
+  const selectedStrategy =
+    strategies.find((s) => s.id === selectedStrategyId) || null;
 
   function handleStrategyChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const strategy = strategies.find((s) => s.id === e.target.value) || null;
-    setSelectedStrategy(strategy);
-    setSelectedFund(null);
+    const strategyId = e.target.value;
+    dispatch(setSelectedStrategyId(strategyId));
+    dispatch(setSelectedFundId("")); // reset fund when strategy changes
   }
 
   function handleFundChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    if (!selectedStrategy) return;
-    const fund = selectedStrategy.funds.find((f) => f.id === e.target.value) || null;
-    setSelectedFund(fund);
+    dispatch(setSelectedFundId(e.target.value));
   }
 
   return (
     <div>
       <label>
         Select Strategy:{" "}
-        <select value={selectedStrategy?.id || ""} onChange={handleStrategyChange}>
+        <select value={selectedStrategyId || ""} onChange={handleStrategyChange}>
           <option value="" disabled>
             -- Choose a strategy --
           </option>
@@ -66,7 +78,7 @@ export default function StrategySelector() {
         <div style={{ marginTop: "1rem" }}>
           <label>
             Select Fund:{" "}
-            <select value={selectedFund?.id || ""} onChange={handleFundChange}>
+            <select value={selectedFundId || ""} onChange={handleFundChange}>
               <option value="" disabled>
                 -- Choose a fund --
               </option>
@@ -80,9 +92,10 @@ export default function StrategySelector() {
         </div>
       )}
 
-      {selectedFund && (
+      {selectedFundId && (
         <div style={{ marginTop: "1rem" }}>
-          <strong>Selected Fund:</strong> {selectedFund.name}
+          <strong>Selected Fund:</strong>{" "}
+          {selectedStrategy?.funds.find((f) => f.id === selectedFundId)?.name}
         </div>
       )}
     </div>
