@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend
 } from "chart.js";
+import RiskSlider from "./RiskSlider";
 // import StarIcon from "@mui/icons-material/Star";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -47,19 +48,11 @@ export default function FundDetails({ data }: FundDetailsProps) {
         ))}
       </Box> */}
 
-      <Typography variant="h6">SRRI (Risk Level)</Typography>
-      <Slider
-        value={srri}
-        min={0}
-        max={10}
-        step={1}
-        disabled
-        valueLabelDisplay="on"
-        sx={{ maxWidth: 300, mb: 3 }}
-      />
-
       <Typography variant="h6">Portfolio Allocation</Typography>
       <Pie data={pieData} />
+
+      <RiskSlider value={srri} />
+
     </Box>
   );
 }
