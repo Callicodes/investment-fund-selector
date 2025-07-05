@@ -4,6 +4,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "../../store/store";
 import { setSelectedStrategyId, setSelectedFundId } from "../../store/slices/fundSlice";
+import FundSelector from "./FundSelector";
 
 type Fund = {
   id: string;
@@ -58,6 +59,13 @@ export default function StrategySelector() {
     dispatch(setSelectedFundId(e.target.value));
   }
 
+  // Helper to map strategy name to FundSelector prop
+  function getStrategyProp(strategyName: string | undefined) {
+    if (strategyName === "Growth Funds") return "Growth";
+    if (strategyName === "Responsible Growth Fund") return "Responsible";
+    return "";
+  }
+
   return (
     <div>
       <label>
@@ -96,6 +104,9 @@ export default function StrategySelector() {
         <div style={{ marginTop: "1rem" }}>
           <strong>Selected Fund:</strong>{" "}
           {selectedStrategy?.funds.find((f) => f.id === selectedFundId)?.name}
+          <div style={{ marginTop: "1rem" }}>
+            <FundSelector strategy={getStrategyProp(selectedStrategy?.name) as "Growth" | "Responsible"} />
+          </div>
         </div>
       )}
     </div>

@@ -1,10 +1,8 @@
-// src/utils/fetchFundData.ts
-
 export const fetchFundData = async (fundId: string) => {
   const url = `https://cdn.core3-dev.ajbbuild.uk/interview/${fundId}.json`;
 
   try {
-    const response = await fetch(url, { cache: "force-cache" });
+    const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch fund ${fundId}: ${response.status}`);
     }

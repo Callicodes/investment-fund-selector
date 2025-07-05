@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import fundReducer from '../features/funds/fundSlice';
+import fundReducer from './slices/fundSlice';
 
 export const store = configureStore({
   reducer: {
