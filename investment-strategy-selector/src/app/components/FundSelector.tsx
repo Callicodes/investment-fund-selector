@@ -8,12 +8,9 @@ import {
   MenuItem,
   CircularProgress,
   Typography,
+  Box,
 } from "@mui/material";
-import FundDetails from "./FundDetails";
-
-interface FundSelectorProps {
-  strategy: "Growth" | "Responsible";
-}
+import { useAppSelector } from "../../store/hooks";
 
 const fundOptions = {
   Growth: [
@@ -24,7 +21,12 @@ const fundOptions = {
   Responsible: [{ name: "Responsible", id: "BN0S2V9" }],
 };
 
-export default function FundSelector({ strategy }: FundSelectorProps) {
+export default function FundSelector() {
+  const strategy = useAppSelector((state) => state.fund.selectedStrategyId) as
+    | "Growth"
+    | "Responsible"
+    | null;
+
   const [selectedFundId, setSelectedFundId] = useState<string | "">("");
   const [fundData, setFundData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -54,12 +56,14 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
     }
   }, []);
 
+  if (!strategy) return null;
+
   return (
-    <>
+    <Box mt={4}>
       <FormControl fullWidth>
         <InputLabel>Select Fund</InputLabel>
         <Select value={selectedFundId} onChange={handleFundChange} label="Select Fund">
-          {fundOptions[strategy].map((fund) => (
+          {fundOptions[strategy]?.map((fund) => (
             <MenuItem key={fund.id} value={fund.id}>
               {fund.name}
             </MenuItem>
@@ -70,7 +74,16 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
       {loading && <CircularProgress sx={{ mt: 2 }} />}
       {error && <Typography color="error">{error}</Typography>}
 
-      {fundData && <FundDetails data={fundData} />}
-    </>
+      {fundData && (
+        <Box mt={4}>
+          <Typography variant="h6">Fund Details</Typography>
+          <Typography><strong>Name:</strong> {fundData.name}</Typography>
+          <Typography><strong>Strategy:</strong> {fundData.strategy}</Typography>
+          <pre style={{ background: "#f4f4f4", padding: "1rem", borderRadius: "8px" }}>
+            {JSON.stringify(fundData, null, 2)}
+          </pre>
+        </Box>
+      )}
+    </Box>
   );
 }
