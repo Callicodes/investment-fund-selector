@@ -25,10 +25,10 @@ export default function FundDetails({ data }: FundDetailsProps) {
   const portfolio = data?.portfolio?.asset ?? [];
 
   const pieData = {
-    labels: portfolio.map((p: any) => p.name),
+    labels: portfolio.map((p: any) => p.label), // updated from p.name
     datasets: [
       {
-        data: portfolio.map((p: any) => p.percentage),
+        data: portfolio.map((p: any) => p.value), // updated from p.percentage
         backgroundColor: [
           "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"
         ]

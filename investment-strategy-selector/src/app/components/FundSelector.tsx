@@ -34,6 +34,7 @@ export default function FundSelector() {
 
   const handleFundChange = async (event: any) => {
     const fundId = event.target.value;
+    if (!fundId) return; // Guard against empty fund IDs
     setSelectedFundId(fundId);
     setLoading(true);
     setError(null);
