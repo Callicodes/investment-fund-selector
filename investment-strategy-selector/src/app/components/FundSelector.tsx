@@ -34,7 +34,7 @@ export default function FundSelector() {
 
   // Ensure selectedFundId is always valid for the current strategy
   useEffect(() => {
-    if (!strategy) {
+    if (!strategy || !fundOptions[strategy]) {
       setSelectedFundId("");
       setFundData(null);
       return;
@@ -50,7 +50,7 @@ export default function FundSelector() {
   // Only restore from localStorage if valid for the current strategy
   useEffect(() => {
     const savedFundId = localStorage.getItem("selectedFundId");
-    if (savedFundId && strategy) {
+    if (savedFundId && strategy && fundOptions[strategy]) {
       const validIds = fundOptions[strategy].map(f => f.id);
       if (validIds.includes(savedFundId)) {
         setSelectedFundId(savedFundId);
