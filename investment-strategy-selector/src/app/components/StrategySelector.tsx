@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import { useAppSelector } from "../../store/hooks";
 
-// Add the prop type definition here
 interface FundSelectorProps {
   strategy: "Growth" | "Responsible";
 }
@@ -29,6 +28,11 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
   const [fundData, setFundData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   const handleFundChange = async (event: any) => {
     const fundId = event.target.value;
@@ -48,14 +52,18 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
     // logic for loading saved fundId if needed
   }, []);
 
-  if (!strategy) return null;
+  if (!hasMounted || !strategy || !["Growth", "Responsible"].includes(strategy)) return null;
 
   return (
     <Box mt={4}>
       <FormControl fullWidth>
         <InputLabel>Select Fund</InputLabel>
-        <Select value={selectedFundId} onChange={handleFundChange} label="Select Fund">
-          {fundOptions[strategy]?.map((fund) => (
+        <Select
+          value={selectedFundId}
+          onChange={handleFundChange}
+          label="Select Fund"
+        >
+          {fundOptions[strategy].map((fund) => (
             <MenuItem key={fund.id} value={fund.id}>
               {fund.name}
             </MenuItem>
@@ -67,7 +75,6 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
       {error && <Typography color="error">{error}</Typography>}
 
       {fundData && (
-        // Render fund details here
         <div>Fund details...</div>
       )}
     </Box>

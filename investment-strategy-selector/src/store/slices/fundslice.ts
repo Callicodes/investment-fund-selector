@@ -1,30 +1,37 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface FundState {
-  selectedStrategyId: string | null;
+  selectedStrategyId: "Growth" | "Responsible" | null;
   selectedFundId: string | null;
 }
 
-const initialStrategyId =
-  typeof window !== "undefined"
-    ? localStorage.getItem("selectedStrategyId")
-    : null;
+const validStrategies = ["Growth", "Responsible"];
 
-const initialFundId =
-  typeof window !== "undefined"
-    ? localStorage.getItem("selectedFundId")
-    : null;
+const getInitialStrategyId = (): "Growth" | "Responsible" | null => {
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("selectedStrategyId");
+    return validStrategies.includes(saved!) ? (saved as "Growth" | "Responsible") : null;
+  }
+  return null;
+};
+
+const getInitialFundId = (): string | null => {
+  if (typeof window !== "undefined") {
+    return localStorage.getItem("selectedFundId");
+  }
+  return null;
+};
 
 const initialState: FundState = {
-  selectedStrategyId: initialStrategyId,
-  selectedFundId: initialFundId,
+  selectedStrategyId: getInitialStrategyId(),
+  selectedFundId: getInitialFundId(),
 };
 
 export const fundSlice = createSlice({
   name: "fund",
   initialState,
   reducers: {
-    setSelectedStrategyId: (state, action: PayloadAction<string>) => {
+    setSelectedStrategyId: (state, action: PayloadAction<"Growth" | "Responsible">) => {
       state.selectedStrategyId = action.payload;
       if (typeof window !== "undefined") {
         localStorage.setItem("selectedStrategyId", action.payload);
@@ -40,5 +47,4 @@ export const fundSlice = createSlice({
 });
 
 export const { setSelectedStrategyId, setSelectedFundId } = fundSlice.actions;
-
 export default fundSlice.reducer;
