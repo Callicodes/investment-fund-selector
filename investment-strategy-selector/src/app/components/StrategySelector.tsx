@@ -40,7 +40,6 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
     setLoading(true);
     setError(null);
     try {
-      // fetchFundData logic here
     } catch (err) {
       setError("Failed to load fund data.");
     } finally {
@@ -49,7 +48,16 @@ export default function FundSelector({ strategy }: FundSelectorProps) {
   };
 
   useEffect(() => {
-    // logic for loading saved fundId if needed
+    if (!strategy || !fundOptions[strategy]) {
+      setSelectedFundId("");
+      setFundData(null);
+      return;
+    }
+    const validIds = fundOptions[strategy].map(f => f.id);
+    if (!validIds.includes(selectedFundId)) {
+      setSelectedFundId("");
+      setFundData(null);
+    }
   }, []);
 
   if (!hasMounted || !strategy || !["Growth", "Responsible"].includes(strategy)) return null;

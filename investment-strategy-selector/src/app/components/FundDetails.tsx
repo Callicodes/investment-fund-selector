@@ -9,7 +9,6 @@ import {
   Legend
 } from "chart.js";
 import RiskSlider from "./RiskSlider";
-// import StarIcon from "@mui/icons-material/Star";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -25,10 +24,10 @@ export default function FundDetails({ data }: FundDetailsProps) {
   const portfolio = data?.portfolio?.asset ?? [];
 
   const pieData = {
-    labels: portfolio.map((p: any) => p.label), // updated from p.name
+    labels: portfolio.map((p: any) => p.label),
     datasets: [
       {
-        data: portfolio.map((p: any) => p.value), // updated from p.percentage
+        data: portfolio.map((p: any) => p.value),
         backgroundColor: [
           "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40"
         ]
@@ -39,15 +38,6 @@ export default function FundDetails({ data }: FundDetailsProps) {
   return (
     <Box mt={4}>
       <Typography variant="h6">Analyst Rating</Typography>
-      {/* <Box display="flex" alignItems="center" mb={2}>
-        {Array.from({ length: 5 }).map((_, index) => (
-          <StarIcon
-            key={index}
-            color={index < analystRating ? "primary" : "disabled"}
-          />
-        ))}
-      </Box> */}
-
       <Typography variant="h6">Portfolio Allocation</Typography>
       <Pie data={pieData} />
 

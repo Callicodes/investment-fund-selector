@@ -2,7 +2,6 @@
 import StrategySelector from "./components/StrategySelector";
 import dynamic from "next/dynamic";
 
-// Dynamically import FundSelector so it's only rendered on the client
 const FundSelector = dynamic(() => import("./components/FundSelector"), { ssr: false });
 
 export default function Home() {

@@ -32,7 +32,6 @@ export default function FundSelector() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Ensure selectedFundId is always valid for the current strategy
   useEffect(() => {
     if (!strategy || !fundOptions[strategy]) {
       setSelectedFundId("");
@@ -47,7 +46,6 @@ export default function FundSelector() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strategy]);
 
-  // Only restore from localStorage if valid for the current strategy
   useEffect(() => {
     const savedFundId = localStorage.getItem("selectedFundId");
     if (savedFundId && strategy && fundOptions[strategy]) {
@@ -62,7 +60,7 @@ export default function FundSelector() {
 
   const handleFundChange = async (event: any) => {
     const fundId = event.target.value;
-    if (!fundId) return; // Guard against empty fund IDs
+    if (!fundId) return;
     setSelectedFundId(fundId);
     setLoading(true);
     setError(null);
