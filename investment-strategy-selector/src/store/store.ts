@@ -1,10 +1,12 @@
-import { configureStore } from "@reduxjs/toolkit";
-import fundReducer from "./slices/fundSlice";
+import { configureStore } from '@reduxjs/toolkit';
+import { fundApi } from '../services/fundApi';
 
 export const store = configureStore({
   reducer: {
-    fund: fundReducer,
+    [fundApi.reducerPath]: fundApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(fundApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
