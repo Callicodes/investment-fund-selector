@@ -9,6 +9,7 @@ import {
   CircularProgress,
   Typography,
   Box,
+  SelectChangeEvent,
 } from "@mui/material";
 import { useAppSelector } from "../../store/hooks";
 
@@ -22,26 +23,19 @@ const fundOptions = {
 };
 
 export default function FundSelector() {
-  // Adjust the selector to match your actual Redux state structure.
-  // For example, if your strategy slice is named 'strategySelector', update as follows:
-    const strategy = useAppSelector((state) => state.strategySelector?.selectedStrategyId) as
-      | "Growth"
-      | "Responsible"
-      | null;
-  
-  // If your strategy is nested differently, update the path accordingly.
-  // Example: state.someParent.strategy.selectedStrategyId
+const strategy = useAppSelector((state) => state.strategy?.selectedStrategyId);
+
+if (strategy === undefined) {
+  return <div>Loading...</div>;
+}
 
   const [selectedFundId, setSelectedFundId] = useState<string>("");
   const [fundData, setFundData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ Moved to top and supports both events and direct string input
-  const handleFundChange = async (
-    input: React.ChangeEvent<{ value: unknown }> | string
-  ) => {
-    const fundId = typeof input === "string" ? input : (input.target.value as string);
+  const handleFundChange = async (event: SelectChangeEvent<string>) => {
+    const fundId = event.target.value;
     if (!fundId) return;
 
     setSelectedFundId(fundId);
@@ -79,9 +73,10 @@ export default function FundSelector() {
       const validIds = fundOptions[strategy].map((f) => f.id);
       if (validIds.includes(savedFundId)) {
         setSelectedFundId(savedFundId);
-        handleFundChange(savedFundId); // ✅ Clean call with string input
+        handleFundChange({ target: { value: savedFundId } } as SelectChangeEvent);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [strategy]);
 
   if (!strategy) return null;
