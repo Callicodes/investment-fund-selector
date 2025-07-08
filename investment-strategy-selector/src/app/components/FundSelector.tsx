@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState, useEffect } from "react";
 import {
   FormControl,
@@ -8,8 +8,10 @@ import {
   CircularProgress,
   Typography,
   Box,
+  SelectChangeEvent,
 } from "@mui/material";
 import { useAppSelector } from "../../store/hooks";
+import PieChartComponent from "./PieChartComponent";
 
 const fundOptions = {
   Growth: [
@@ -22,25 +24,35 @@ const fundOptions = {
 
 export default function FundSelector() {
   const strategy = useAppSelector((state) => state.strategy.selectedStrategyId);
-  const [selectedFundId, setSelectedFundId] = useState<string | "">("");
+  const [selectedFundId, setSelectedFundId] = useState<string>("");
   const [fundData, setFundData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasMounted, setHasMounted] = useState(false);
 
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  const handleFundChange = async (event: any) => {
+  const handleFundChange = async (event: SelectChangeEvent<string>) => {
     const fundId = event.target.value;
+    if (!fundId) return;
+
     setSelectedFundId(fundId);
     setLoading(true);
     setError(null);
+
     try {
-      // Simulate async fetch
-      await new Promise((res) => setTimeout(res, 500));
-      setFundData({ id: fundId });
+      // Simulate fetch
+      const mockData = {
+        name: fundOptions[strategy!].find(f => f.id === fundId)?.name || "Unknown",
+        strategy,
+        allocation: [
+          { name: "Equities", value: 50 },
+          { name: "Bonds", value: 30 },
+          { name: "Cash", value: 20 },
+        ],
+      };
+
+      await new Promise((res) => setTimeout(res, 800)); // Simulated delay
+
+      setFundData(mockData);
+      localStorage.setItem("selectedFundId", fundId);
     } catch (err) {
       setError("Failed to load fund data.");
     } finally {
@@ -54,14 +66,17 @@ export default function FundSelector() {
       setFundData(null);
       return;
     }
-    const validIds = fundOptions[strategy].map(f => f.id);
-    if (!validIds.includes(selectedFundId)) {
-      setSelectedFundId("");
-      setFundData(null);
-    }
-  }, [strategy, selectedFundId]);
 
-  if (!hasMounted || !strategy || !["Growth", "Responsible"].includes(strategy)) return null;
+    const savedFundId = localStorage.getItem("selectedFundId");
+    const validIds = fundOptions[strategy].map((f) => f.id);
+
+    if (savedFundId && validIds.includes(savedFundId)) {
+      setSelectedFundId(savedFundId);
+      handleFundChange({ target: { value: savedFundId } } as SelectChangeEvent);
+    }
+  }, [strategy]);
+
+  if (!strategy) return null;
 
   return (
     <Box mt={4}>
@@ -72,7 +87,7 @@ export default function FundSelector() {
           onChange={handleFundChange}
           label="Select Fund"
         >
-          {fundOptions[strategy].map((fund) => (
+          {fundOptions[strategy]?.map((fund) => (
             <MenuItem key={fund.id} value={fund.id}>
               {fund.name}
             </MenuItem>
@@ -84,7 +99,20 @@ export default function FundSelector() {
       {error && <Typography color="error">{error}</Typography>}
 
       {fundData && (
-        <div>Fund details: {fundData.id}</div>
+        <Box mt={4}>
+          <Typography variant="h6">Fund Details</Typography>
+          <Typography>
+            <strong>Name:</strong> {fundData.name}
+          </Typography>
+          <Typography>
+            <strong>Strategy:</strong> {fundData.strategy}
+          </Typography>
+
+          <Typography variant="h6" sx={{ mt: 3 }}>
+            Fund Allocation
+          </Typography>
+          <PieChartComponent data={fundData.allocation} />
+        </Box>
       )}
     </Box>
   );
