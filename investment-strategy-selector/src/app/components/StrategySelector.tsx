@@ -1,90 +1,43 @@
-import React, { useState, useEffect } from "react";
+'use client';
+import React, { useEffect } from "react";
 import {
   FormControl,
   InputLabel,
   Select,
   MenuItem,
-  CircularProgress,
-  Typography,
   Box,
 } from "@mui/material";
-import { useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { setStrategy } from "../../store/strategySlice";
 
-interface FundSelectorProps {
-  strategy: "Growth" | "Responsible";
-}
+export default function StrategySelector() {
+  const dispatch = useAppDispatch();
+  const selectedStrategy = useAppSelector((state) => state.strategy.selectedStrategyId);
 
-const fundOptions = {
-  Growth: [
-    { name: "Cautious", id: "BYW8RV9" },
-    { name: "Balanced", id: "BYW8RX1" },
-    { name: "Adventurous", id: "BYW8VG2" },
-  ],
-  Responsible: [{ name: "Responsible", id: "BN0S2V9" }],
-};
-
-export default function FundSelector({ strategy }: FundSelectorProps) {
-  const [selectedFundId, setSelectedFundId] = useState<string | "">("");
-  const [fundData, setFundData] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
-  const handleFundChange = async (event: any) => {
-    const fundId = event.target.value;
-    setSelectedFundId(fundId);
-    setLoading(true);
-    setError(null);
-    try {
-    } catch (err) {
-      setError("Failed to load fund data.");
-    } finally {
-      setLoading(false);
-    }
+  const handleStrategyChange = (event: any) => {
+    const value = event.target.value as 'Growth' | 'Responsible';
+    dispatch(setStrategy(value));
+    localStorage.setItem('selectedStrategy', value); // Optional
   };
 
   useEffect(() => {
-    if (!strategy || !fundOptions[strategy]) {
-      setSelectedFundId("");
-      setFundData(null);
-      return;
-    }
-    const validIds = fundOptions[strategy].map(f => f.id);
-    if (!validIds.includes(selectedFundId)) {
-      setSelectedFundId("");
-      setFundData(null);
-    }
-  }, []);
-
-  if (!hasMounted || !strategy || !["Growth", "Responsible"].includes(strategy)) return null;
+    const saved = localStorage.getItem('selectedStrategy') as 'Growth' | 'Responsible' | null;
+    if (saved) dispatch(setStrategy(saved));
+  }, [dispatch]);
 
   return (
     <Box mt={4}>
       <FormControl fullWidth>
-        <InputLabel>Select Fund</InputLabel>
+        <InputLabel>Select Strategy</InputLabel>
         <Select
-          value={selectedFundId}
-          onChange={handleFundChange}
-          label="Select Fund"
+          value={selectedStrategy || ""}
+          onChange={handleStrategyChange}
+          label="Select Strategy"
         >
-          {fundOptions[strategy].map((fund) => (
-            <MenuItem key={fund.id} value={fund.id}>
-              {fund.name}
-            </MenuItem>
-          ))}
+          <MenuItem value="Growth">Growth</MenuItem>
+          <MenuItem value="Responsible">Responsible</MenuItem>
         </Select>
       </FormControl>
-
-      {loading && <CircularProgress sx={{ mt: 2 }} />}
-      {error && <Typography color="error">{error}</Typography>}
-
-      {fundData && (
-        <div>Fund details...</div>
-      )}
     </Box>
   );
 }
