@@ -9,9 +9,19 @@ import {
   Typography,
   Box,
   SelectChangeEvent,
+  LinearProgress,
 } from "@mui/material";
 import { useAppSelector } from "../../store/hooks";
 import PieChartComponent from "./PieChartComponent";
+
+interface FundData {
+  name: string;
+  analystRating: number;
+  srri: number;
+  portfolio: {
+    asset: { name: string; value: number }[];
+  };
+}
 
 const fundOptions = {
   Growth: [
@@ -25,7 +35,7 @@ const fundOptions = {
 export default function FundSelector() {
   const strategy = useAppSelector((state) => state.strategy.selectedStrategyId);
   const [selectedFundId, setSelectedFundId] = useState<string>("");
-  const [fundData, setFundData] = useState<any>(null);
+  const [fundData, setFundData] = useState<FundData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,23 +48,19 @@ export default function FundSelector() {
     setError(null);
 
     try {
-      // Simulate fetch
-      const mockData = {
-        name: fundOptions[strategy!].find(f => f.id === fundId)?.name || "Unknown",
-        strategy,
-        allocation: [
-          { name: "Equities", value: 50 },
-          { name: "Bonds", value: 30 },
-          { name: "Cash", value: 20 },
-        ],
-      };
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/${fundId}.json`
+      );
+      if (!response.ok) throw new Error(`Failed to fetch fund data: ${response.statusText}`);
 
-      await new Promise((res) => setTimeout(res, 800)); // Simulated delay
-
-      setFundData(mockData);
-      localStorage.setItem("selectedFundId", fundId);
+      const data: FundData = await response.json();
+      setFundData(data);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("selectedFundId", fundId);
+      }
     } catch (err) {
-      setError("Failed to load fund data.");
+      console.error(err);
+      setError("Failed to load fund data. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -67,16 +73,28 @@ export default function FundSelector() {
       return;
     }
 
-    const savedFundId = localStorage.getItem("selectedFundId");
-    const validIds = fundOptions[strategy].map((f) => f.id);
+    if (typeof window !== "undefined") {
+      const savedFundId = localStorage.getItem("selectedFundId");
+      const validIds = fundOptions[strategy].map((f) => f.id);
 
-    if (savedFundId && validIds.includes(savedFundId)) {
-      setSelectedFundId(savedFundId);
-      handleFundChange({ target: { value: savedFundId } } as SelectChangeEvent);
+      if (savedFundId && validIds.includes(savedFundId)) {
+        setSelectedFundId(savedFundId);
+        (async () => {
+          await handleFundChange({ target: { value: savedFundId } } as SelectChangeEvent);
+        })();
+      }
     }
   }, [strategy]);
 
-  if (!strategy) return null;
+  if (!strategy) {
+    return (
+      <Box mt={4}>
+        <Typography variant="h6" color="textSecondary">
+          Please select a strategy to view available funds.
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box mt={4}>
@@ -95,7 +113,14 @@ export default function FundSelector() {
         </Select>
       </FormControl>
 
-      {loading && <CircularProgress sx={{ mt: 2 }} />}
+      {loading && (
+        <Box mt={2}>
+          <CircularProgress />
+          <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+            Loading fund data...
+          </Typography>
+        </Box>
+      )}
       {error && <Typography color="error">{error}</Typography>}
 
       {fundData && (
@@ -105,13 +130,22 @@ export default function FundSelector() {
             <strong>Name:</strong> {fundData.name}
           </Typography>
           <Typography>
-            <strong>Strategy:</strong> {fundData.strategy}
+            <strong>Analyst Rating:</strong>{" "}
+            {"⭐".repeat(Math.round(fundData.analystRating))}
           </Typography>
+          <Typography sx={{ mt: 2 }}>
+            <strong>SRRI (Risk Level):</strong> {fundData.srri} / 10
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={(fundData.srri / 10) * 100}
+            sx={{ mt: 1, height: 10, borderRadius: 5 }}
+          />
 
-          <Typography variant="h6" sx={{ mt: 3 }}>
-            Fund Allocation
+          <Typography variant="h6" sx={{ mt: 4 }}>
+            Asset Allocation
           </Typography>
-          <PieChartComponent data={fundData.allocation} />
+          <PieChartComponent data={fundData.portfolio?.asset || []} />
         </Box>
       )}
     </Box>
